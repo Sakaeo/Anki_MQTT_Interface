@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+    <title>JavaScript MQTT WebSocket Example</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js">
+    </script>
+    <script>
+        let mqtt;
+        const reconnectTimeout = 2000;
+        const port = 9001;
+        let mqttHost = "192.168.1.237";
+        let hostIp = "192.168.1.237";
+        let colorCount = 1;
+        let cars;
+
+        function setDefault() {
+            document.getElementById("mqttServer").defaultValue = mqttHost;
+            document.getElementById("hostIp").defaultValue = hostIp;
+        }
+
+        function onConnectionLost() {
+            console.log("connection lost");
+
+            document.getElementById("mqttStatus").innerHTML = "Connection Lost";
+            document.getElementById("mqttStatus").style.background = "red";
+            document.getElementById("messages").innerHTML = "Connection Lost";
+        }
+
+        function onFailure(message) {
+            console.log("Connection Attempt to Host " + mqttHost + "Failed");
+            console.log(message);
+            document.getElementById("messages").innerHTML = "Connection Failed- Retrying";
+            setTimeout(MQTTConnect, reconnectTimeout);
+        }
+
+        function onMessageArrived(msg) {
+            let topic = msg.destinationName;
+            let json;
+            try {
+                json = JSON.parse(msg.payloadString);
+            } catch (e) {
+                console.log(e.toString());
+                console.log(msg.payloadString);
+            }
+
+            if (!topic.includes("/D")) {
+                if (topic.endsWith("/Cars")) {
+                    for (let i in json) {
+                        if (json.hasOwnProperty(i)) {
+                            let node = document.createElement("div");
+                            if (!document.getElementById(json[i])) {
+                                node.setAttribute("class", "col-3");
+                                node.setAttribute("id", json[i]);
+                                node.setAttribute("style", "border : 1px solid black;justify-content:unset");
+
+                                let header = document.createElement("h2");
+                                header.appendChild(document.createTextNode(json[i]));
+                                node.appendChild(header);
+
+                                document.getElementById("data").appendChild(node);
+
+                                node = document.createElement("OPTION");
+                                node.setAttribute("value", json[i]);
+                                node.innerText = json[i];
+                                document.getElementById("selectCar").appendChild(node);
+                            }
+                        }
+                        cars = json;
+                    }
+
+                    let node = document.createElement("p");
+                    msg.payloadString.replace("[", "").replace("]", "").split(",").forEach(e => {
+                        node.appendChild(document.createTextNode(e));
+                        node.appendChild(document.createElement("br"));
+                    });
+                    document.getElementById("hostCars").replaceChild(node, document.getElementById("hostCars").childNodes[2]);
+
+            } else if (topic.endsWith("/HostStatus")) {
+                if (json.value) {
+                    document.getElementById("hostStatus").innerText = "Online ";
+                    document.getElementById("hostStatus").style.color = "green";
+                } else {
+                    document.getElementById("hostStatus").innerText = "Offline";
+                    document.getElementById("hostStatus").style.color = "red";
+                }
+            } else if (topic.includes("/Host")) {
+                if (topic.includes("/E")) {
+                    // Host Events
+                    if (topic.includes("/E")) {
+                        document.getElementById("hostEvent").innerHTML = topic.split("/").pop()
+                    }
+                }
+
+                } else if (topic.includes("Car/")) {
+                    let topicArray = topic.split("/");
+                    let name = "";
+                    let v = topicArray[2];
+
+                    for (let i = 4; i < topicArray.length; i++) {
+                        name += topicArray[i] + " ";
+                    }
+                    name.replace(/.$/, ":");
+
+                //Error msg
+                if (topic.endsWith("/Error")) {
+                    document.getElementById("error").innerHTML = json["msg"]
+                }
+
+                // Car Events
+                if (topic.includes("/E")) {
+                    document.getElementById("carEvent").innerHTML = topic.split("/").pop()
+                }
+
+                //Status
+                if (document.getElementById(v + "Status")) {
+                    fillCarStatus(json, topic, v);
+                } else {
+                    let node = document.createElement("div");
+                    node.setAttribute("class", "col-3");
+                    node.setAttribute("id", v + "Status");
+
+                        if (colorCount % 5 === 0) {
+                            colorCount++;
+                        }
+                        if (colorCount % 2 === 0) {
+                            node.setAttribute("style", "background : darkgray");
+                            colorCount++;
+                        } else {
+                            node.setAttribute("style", "background : lightgray");
+                            colorCount++;
+                        }
+
+                        let header = document.createElement("h3");
+                        header.appendChild(document.createTextNode(topicArray[2]));
+                        node.appendChild(header);
+
+                        let table = document.createElement("table");
+                        let row = document.createElement("tr");
+                        let col = document.createElement("th");
+
+                        col.innerText = "Status";
+                        row.appendChild(col);
+                        col = document.createElement("th");
+                        col.setAttribute("id", v + "StatusOnline");
+                        col.innerText = "";
+                        row.appendChild(col);
+                        table.appendChild(row);
+
+                        row = document.createElement("tr");
+                        col = document.createElement("th");
+                        col.innerText = "Speed";
+                        row.appendChild(col);
+                        col = document.createElement("th");
+                        col.setAttribute("id", v + "StatusSpeed");
+                        col.innerText = "";
+                        row.appendChild(col);
+                        table.appendChild(row);
+
+                        row = document.createElement("tr");
+                        col = document.createElement("th");
+                        col.innerText = "Lane";
+                        row.appendChild(col);
+                        col = document.createElement("th");
+                        col.setAttribute("id", v + "StatusLane");
+                        col.innerText = "";
+                        row.appendChild(col);
+                        table.appendChild(row);
+
+                        node.appendChild(table);
+                        document.getElementById("status").appendChild(node);
+
+                        fillCarStatus(json, topic, v);
+                    }
+
+                    //Data
+                    if (document.getElementById(v)) {
+                        if (document.getElementById(v + name)) {
+                            document.getElementById(v + name).innerHTML = fillCarData(json);
+                        } else {
+                            let node = document.createElement("div");
+                            node.setAttribute("class", "carData");
+
+                            let header = document.createElement("h4");
+                            header.innerText = name;
+                            node.appendChild(header);
+
+                            let content = document.createElement("p");
+                            content.setAttribute("id", v + name);
+                            content.innerHTML = fillCarData(json);
+                            node.appendChild(content);
+
+
+                            document.getElementById(v).appendChild(node);
+                        }
+                    }
+                }
+            }
+        }
+
+        function fillCarStatus(json, topic, v) {
+            if (topic.includes("CarStatus")) {
+                let time1 = json.timestamp.toString().split(" ");
+                time1 = time1[1];
+                time1 = time1.split(":");
+                time1 = time1[0] * 3600 + time1[1] * 60 + time1[2];
+
+                let time2 = new Date();
+                time2 = time2.toTimeString();
+                time2 = time2.split(" ");
+                time2 = time2[0].split(":");
+                time2 = time2[0] * 3600 + time2[1] * 60 + time2[2];
+
+                if (time2 - time1 > 15) {
+                    document.getElementById(v + "StatusOnline").innerText = "Offline";
+                    document.getElementById(v + "StatusOnline").style.color = "red";
+                } else if (json["charging"]) {
+                    document.getElementById(v + "StatusOnline").innerText = "Charging";
+                    document.getElementById(v + "StatusOnline").style.color = "orange";
+                } else if (json["onTrack"]) {
+                    document.getElementById(v + "StatusOnline").innerText = "onTrack";
+                    document.getElementById(v + "StatusOnline").style.color = "blue";
+                } else if (json.online) {
+                    document.getElementById(v + "StatusOnline").innerText = "Online";
+                    document.getElementById(v + "StatusOnline").style.color = "green";
+                } else {
+                    document.getElementById(v + "StatusOnline").innerText = "Offline";
+                    document.getElementById(v + "StatusOnline").style.color = "red";
+                }
+            } else if (topic.includes("Speed/Actual")) {
+                document.getElementById(v + "StatusSpeed").innerText = json.value;
+            } else if (topic.includes("Lane/Actual")) {
+                document.getElementById(v + "StatusLane").innerText = json.value;
+            }
+        }
+
+        function fillCarData(json) {
+            let result = "";
+            if (json.timestamp) {
+                result += "Time: ";
+                result += json.timestamp.split(" ")[1] + "<br/>";
+                delete json.timestamp;
+            }
+            Object.keys(json).forEach(function (key) {
+                result += key + ": " + json[key] + "<br/>";
+            });
+            return result;
+        }
+
+        function onConnected(recon, url) {
+            console.log(" in onConnected " + recon);
+            console.log(url);
+        }
+
+        function onConnect() {
+            console.log("Connected ");
+
+            document.getElementById("messages").innerHTML = "Connected to: " + mqttHost + " on port: " + port;
+            document.getElementById("mqttStatus").innerHTML = "Connection Status: Connected";
+            document.getElementById("mqttStatus").style.background = "green";
+
+            mqtt.subscribe("Anki/Host/+/S/#");
+            mqtt.subscribe("Anki/Host/+/E/#");
+            mqtt.subscribe("Anki/Car/+/S/#");
+            mqtt.subscribe("Anki/Car/+/E/#");
+        }
+
+        function MQTTConnect() {
+            document.getElementById("messages").innerText = "Start";
+
+            console.log("connecting to " + document.getElementById("mqttServer").value + " " + port);
+            mqtt = new Paho.MQTT.Client(mqttHost, port, "", "CarControlHtml" + Math.random());
+            const options = {
+                timeout: 3,
+                onSuccess: onConnect,
+                onFailure: onFailure,
+            };
+            mqtt.onMessageArrived = onMessageArrived;
+            mqtt.onConnectionLost = onConnectionLost;
+            mqtt.onConnected = onConnected;
+
+            mqtt.connect(options);
+
+            hostIp = document.getElementById("hostIp").value;
+        }
+
+        function connectCarsButton() {
+            let msg = '{"connecting": true}';
+            if (document.getElementById("amountCheck").checked) {
+                msg = '{"connecting": true,"amount":' + document.getElementById("amount").value + '}';
+            }
+            let message = new Paho.MQTT.Message(msg);
+            message.destinationName = "Anki/Host/" + hostIp + "/I";
+            mqtt.send(message);
+
+        }
+
+        function disconnectCarsButton() {
+            let msg = '{"connecting": false}';
+            let message = new Paho.MQTT.Message(msg);
+            message.destinationName = "Anki/Host/" + hostIp + "/I";
+            mqtt.send(message);
+        }
+
+        function sendCommandButton() {
+            let checkboxes = document.getElementsByClassName("commandCheck");
+            checkboxes = Array.from(checkboxes);
+            checkboxes = checkboxes.filter(check => check.checked);
+
+            let json = "";
+            for (let i = 0; i < checkboxes.length; i++) {
+                let key = checkboxes[i].id.replace("Check", "");
+                let value = document.getElementById(key).value;
+
+                if (key === "trackMode") {
+                    if (value === "setTrack") {
+                        let value2 = document.getElementById("trackOptionInput").value;
+                        value = '{"setTrack":[' + value2 + "]}";
+                    } else if (value === "scanTrack") {
+                        if (document.getElementById("trackOptionCheck").checked) {
+                            let value2 = document.getElementById("trackOptionInput").value;
+                            value = '{"scanTrack":{"expectedRoadPieces":' + value2 + "}}";
+                        } else {
+                            value = '{"scanTrack":{}}';
+                        }
+                    }
+                }
+
+                if (key === "lights") {
+                    value = '"' + value + '"';
+                }
+
+                json += '"' + key + '":' + value;
+                if (i < checkboxes.length - 1) {
+                    json += ",";
+                }
+            }
+            let car = document.getElementById("selectCar").value;
+            let topic = "Anki/Car/";
+
+            if (car === "All") {
+                topic += "I";
+            } else {
+                topic += car + "/I";
+            }
+            let message = new Paho.MQTT.Message("{" + json + "}");
+            message.destinationName = topic;
+            mqtt.send(message);
+        }
+
+        function globalDriveButton() {
+            let json = '"speed":500';
+
+            let message = new Paho.MQTT.Message("{" + json + "}");
+            message.destinationName = "Anki/Car/I";
+            mqtt.send(message);
+        }
+
+        function globalStopButton() {
+            let json = '"speed":0';
+
+            let message = new Paho.MQTT.Message("{" + json + "}");
+            message.destinationName = "Anki/Car/I";
+            mqtt.send(message);
+        }
+
+        function globalScanButton() {
+            let json = '"trackMode": {"scanTrack": {}}';
+
+            let message = new Paho.MQTT.Message("{" + json + "}");
+            message.destinationName = "Anki/Car/I";
+            mqtt.send(message);
+        }
+
+        function globalSpeedButton() {
+            let json = '"speed":' + document.getElementById("speed").value;
+
+            let message = new Paho.MQTT.Message("{" + json + "}");
+            message.destinationName = "Anki/Car/I";
+            mqtt.send(message);
+        }
+
+        function globalLaneButton() {
+            let json = '"lane":' + document.getElementById("lane").value;
+
+            let message = new Paho.MQTT.Message("{" + json + "}");
+            message.destinationName = "Anki/Car/I";
+            mqtt.send(message);
+        }
+
+        function clearCarData() {
+            for (let i = 0; i < cars.length; i++) {
+                let node = document.getElementById(cars[i]);
+                let temp = node.firstChild;
+                node.innerHTML = "";
+                node.appendChild(temp);
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="row">
+    <div class="startConfig">
+        <fieldset>
+            <h3>Mqtt</h3>
+            <label for="mqttServer">Mqtt Server: </label><input type="text" id="mqttServer"><br>
+            <label for="hostIp">Host Ip: </label><input type="text" id="hostIp"><br>
+            <script>setDefault()</script>
+            <label for="connectHostButton"></label>
+            <button type="button" id="connectHostButton" onclick=MQTTConnect()>Connect</button>
+            <div id="mqttStatus" style="text-align: center">Connection Status: Not Connected</div>
+        </fieldset>
+    </div>
+    <div class="col-6" style="border: none; padding: unset; justify-content: unset">
+        <br>
+        <p id="messages"></p>
+        <p id="error"></p>
+        <p class="msgLabel">Host Events</p>
+        <p id="hostEvent"></p>
+        <p class="msgLabel">Car Events</p>
+        <p id="carEvent"></p>
+    </div>
+</div>
+
+<div class="row" id="1stRow">
+    <div class="col-4" style="background: lightgray">
+        <h3>Host</h3>
+        <div class="hostData">
+            <h4>Status:</h4>
+            <p id="hostStatus" style="background: white"></p>
+        </div>
+        <div class="hostData" id="hostCars">
+            <h4>Cars:</h4>
+        </div>
+        <div class="hostButtons">
+            <button class="connectCarButton" type="button" onclick=connectCarsButton()>Connect Cars</button>
+            <button class="disconnectCarButton" type="button" onclick=disconnectCarsButton()>Disconnect Cars</button>
+            <form>
+                <label for="amount">Amount:</label>
+                <input type="text" size="5" id="amount"/>
+                <input type="checkbox" id="amountCheck"/>
+                <label for="amountCheck">Enabled</label>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-4" style="background: lightgray">
+        <table>
+            <tr>
+                <th></th>
+                <th><h3>Commands</h3></th>
+                <th><input type="checkbox" id="globalCheckbox"></th>
+            </tr>
+            <tr>
+                <th><label>Name</label></th>
+                <th><label style="text-align: center">Value</label></th>
+                <th><label>Enabled</label></th>
+            </tr>
+            <tr>
+                <th><label>Light</label></th>
+                <th><select id="lights">
+                    <option value="red">Red</option>
+                    <option value="green">Green</option>
+                </select></th>
+                <th><input type="checkbox" class="commandCheck" id="lightsCheck"></th>
+            </tr>
+            <tr>
+                <th><label>Speed</label></th>
+                <th><input type="text" id="speed" value="0"></th>
+                <th><input type="checkbox" class="commandCheck" id="speedCheck"></th>
+            </tr>
+            <tr>
+                <th><label>Acceleration</label></th>
+                <th><input type="text" id="acceleration" value="0"></th>
+                <th><input type="checkbox" class="commandCheck" id="accelerationCheck"></th>
+            </tr>
+            <tr>
+                <th><label>Lane</label></th>
+                <th><input type="text" id="lane" value="0"></th>
+                <th><input type="checkbox" class="commandCheck" id="laneCheck"></th>
+            </tr>
+            <tr>
+                <th><label>Battery</label></th>
+                <th><select id="battery">
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select></th>
+                <th><input type="checkbox" class="commandCheck" id="batteryCheck"></th>
+            </tr>
+            <tr>
+                <th><label>Version</label></th>
+                <th><select id="version">
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select></th>
+                <th><input type="checkbox" class="commandCheck" id="versionCheck"></th>
+            </tr>
+            <tr>
+                <th><label>UTurn</label></th>
+                <th><select id="uTurn">
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select></th>
+                <th><input type="checkbox" class="commandCheck" id="uTurnCheck"></th>
+            </tr>
+            <tr>
+                <th><label>Track Mode</label></th>
+                <th><select id="trackMode">
+                    <option value="setTrack">Set Track</option>
+                    <option value="scanTrack">Scan Track</option>
+                </select></th>
+                <th><input type="checkbox" class="commandCheck" id="trackModeCheck"></th>
+            <tr id="trackOption" style="display: none">
+                <th><label id="trackOptionLabel">Track</label></th>
+                <th><input type="text" id="trackOptionInput" placeholder="0,1,2"></th>
+                <th><input type="checkbox" id="trackOptionCheck" disabled></th>
+            </tr>
+            <tr>
+                <th colspan="3">
+                    <select id="selectCar">
+                        <option value="All">Global</option>
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th colspan="3">
+                    <button
+                            class="commandButton" type="button" id="sendCommand" onclick=sendCommandButton()>Send
+                        Commands
+                    </button>
+                </th>
+            </tr>
+        </table>
+    </div>
+
+    <div class="col-4" style="background: lightgray">
+        <button
+                class="commandButton" type="button" onclick=globalDriveButton()>Global Drive
+        </button>
+        <button
+                class="commandButton" type="button" onclick=globalStopButton()>Global Stop
+        </button>
+        <button
+                class="commandButton" type="button" onclick=globalScanButton()>Global Scan
+        </button>
+        <button
+                class="commandButton" type="button" onclick=globalSpeedButton()>Global Speed
+        </button>
+        <button
+                class="commandButton" type="button" onclick=globalLaneButton()>Global Lane
+        </button>
+        <button
+                class="commandButton" type="button" onclick=clearCarData()>Clear Car Data
+        </button>
+    </div>
+</div>
+
+<div class="row" id="status">
+    <h2 class="col-12">Status</h2>
+</div>
+
+<div class="row" id="data">
+    <h2 class="col-12">Data</h2>
+</div>
+<script>
+    //Global Checkbox
+    document.getElementById("globalCheckbox").addEventListener("change", function () {
+        let checkboxes = document.getElementsByClassName("commandCheck");
+        checkboxes = Array.from(checkboxes);
+        for (let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = document.getElementById("globalCheckbox").checked;
+        }
+        document.getElementById("trackModeCheck").dispatchEvent(new Event("change"));
+    });
+
+    //Show and Hide TrackOption Element
+    document.getElementById("trackModeCheck").addEventListener("change", function () {
+        if (document.getElementById("trackModeCheck").checked) {
+            document.getElementById("trackOption").style.display = "table-row";
+        } else {
+            document.getElementById("trackOption").style.display = "none";
+        }
+    });
+
+    //HideOption Content
+    document.getElementById("trackMode").addEventListener("change", function () {
+        let value = document.getElementById("trackMode").value;
+        if (value === "setTrack") {
+            document.getElementById("trackOptionLabel").innerText = "Track";
+            document.getElementById("trackOptionCheck").disabled = true;
+            document.getElementById("trackOptionInput").placeholder = "0,1,2";
+            document.getElementById("trackOptionInput").value = "";
+        }
+        if (value === "scanTrack") {
+            document.getElementById("trackOptionLabel").innerText = "Expected amount";
+            document.getElementById("trackOptionCheck").disabled = false;
+            document.getElementById("trackOptionInput").placeholder = "";
+            document.getElementById("trackOptionInput").value = "0";
+        }
+    });
+</script>
+</body>
+</html>
