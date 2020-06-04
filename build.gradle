@@ -1,3 +1,12 @@
+buildscript {
+  repositories {
+    jcenter()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+}
+
 plugins {
   id "com.moowork.node" version "1.2.0"
 }
@@ -5,37 +14,52 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'maven'
-mainClassName = 'de.jan.anki.mqttService.AnkiMain'
+mainClassName = 'edu.oswego.cs.CPSLab.anki.AnkiConnectionTest'
+group = 'com.github.tenbergen'
 
 repositories {
   jcenter()
-    maven {
-        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
-    }
 }
 
 dependencies {
-    compile 'org.reflections:reflections:0.9.11'
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
-    compile group: 'org.json', name: 'json', version: '20180813'
-    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.4'
+    //included by adessoAG/anki-drive-java, but maybe updated
+    compile 'org.reflections:reflections:0.9.11' //was 0.9.10
+    compile 'javax.xml.bind:jaxb-api:2.3.0'
+
+    //new dependencies included by BT
+
+    //dependencies for AnkiCommander (https://github.com/sha224/anki-commander)
+    implementation 'org.apache.sshd:sshd-core:2.2.0'
+    implementation 'org.jline:jline:3.10.0'
+    implementation 'org.slf4j:slf4j-api:1.7.26'
+    implementation 'org.slf4j:slf4j-simple:1.7.26'
 }
 
-jar {
-    manifest {
-        attributes("Manifest-Version": "1.0",
-                "Main-Class": "de.jan.anki.host.AnkiMain");
-    }
+node {
+  version = '8.12.0'    //was '4.4.7'
+  npmVersion = '6.4.1'  //was '3.10.5'
+  distBaseUrl = 'https://nodejs.org/dist'
+  download = true
+
+  workDir = file("${project.buildDir}/nodejs")
+  nodeModulesDir = file("${project.projectDir}")
 }
 
 task fatJar(type: Jar) {
-    manifest.from jar.manifest
-    from {
-        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
-    } {
-        exclude "META-INF/*.SF"
-        exclude "META-INF/*.DSA"
-        exclude "META-INF/*.RSA"
-    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+task server(type: NodeTask) {
+    script = file('src/main/nodejs/server.js')
+    ignoreExitValue = true
+}
+
+//added exec task for Anki Commander SSH test server
+task ssh(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.shakhar.anki.commander.AnkiSshd'
+}
+
+processResources.dependsOn(['npmInstall'])
