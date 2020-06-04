@@ -21,13 +21,10 @@ repositories {
 }
 
 dependencies {
-    //included by adessoAG/anki-drive-java, but maybe updated
-    compile 'org.reflections:reflections:0.9.11' //was 0.9.10
+    compile 'org.reflections:reflections:0.9.11'
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
     compile group: 'org.json', name: 'json', version: '20180813'
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.4'
-
-    //new dependencies included by BT
 }
 
 node {
