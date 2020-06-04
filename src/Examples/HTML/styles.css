@@ -1,0 +1,242 @@
+* {
+    box-sizing: border-box;
+}
+
+.row::after {
+    content: "";
+    clear: both;
+    display: table;
+    margin: 5px;
+    width: 100%;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.row > [class*="col-"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.col-1 {
+    width: 8.33%;
+}
+
+.col-2 {
+    width: 16.66%;
+}
+
+.col-3 {
+    width: 25%;
+}
+
+.col-4 {
+    width: 33.33%;
+}
+
+.col-5 {
+    width: 41.66%;
+}
+
+.col-6 {
+    width: 50%;
+}
+
+.col-7 {
+    width: 58.33%;
+}
+
+.col-8 {
+    width: 66.66%;
+}
+
+.col-9 {
+    width: 75%;
+}
+
+.col-10 {
+    width: 83.33%;
+}
+
+.col-11 {
+    width: 91.66%;
+}
+
+.col-12 {
+    width: 100%;
+}
+
+.hostData {
+    padding: 5px;
+    margin: 10px;
+    background: white;
+}
+
+.carData {
+    padding: 5px;
+}
+
+.commandButton {
+    padding: 15px;
+    width: 90%;
+    margin: 6px;
+}
+
+.connectCarButton {
+    padding: 15px;
+    width: 100%;
+    color: white;
+    background: green;
+    margin: 5px;
+}
+
+.disconnectCarButton {
+    padding: 15px;
+    width: 100%;
+    color: white;
+    background: red;
+    margin: 5px;
+}
+
+.hostButtons {
+    width: 90%;
+    margin: 5px;
+    alignment: bottom;
+}
+
+.startConfig {
+    width: 50%;
+    float: left;
+}
+
+.msgLabel{
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 140%;
+    margin: 0;
+}
+
+#mqttStatus {
+    margin: 5px;
+    padding: 2px;
+}
+
+#messages {
+    background-color: yellow;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 140%;
+    margin: 0;
+}
+
+#error {
+    background-color: red;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 140%;
+    margin: 0;
+}
+
+#carEvent{
+    font-size: 15px;
+    line-height: 140%;
+    margin: 0;
+}
+
+#hostEvent{
+    font-size: 15px;
+    line-height: 140%;
+    margin: 0;
+}
+
+#mqttStatus {
+    background-color: red;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    line-height: 140%;
+}
+
+h4 {
+    margin: 5px;
+}
+
+h3 {
+    margin: 5px;
+    text-align: center;
+}
+
+h2 {
+    margin: 5px;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+}
+
+table tr {
+    font: 14px Verdana;
+}
+
+table th {
+    font: 12px Verdana;
+}
+
+table th input[type=text] {
+    display: inline-block;
+    vertical-align: top;
+    margin: 4px 4px 4px 4px;
+    width: 100%;
+}
+
+table th select {
+    display: inline-block;
+    vertical-align: top;
+    margin: 4px 4px 4px 4px;
+    width: 100%
+}
+
+table th label {
+    display: inline-block;
+    vertical-align: top;
+    width: 100%;
+    text-align: right;
+    font: 11px Verdana;
+    margin: auto;
+}
+
+fieldset {
+    margin: 5px 5px 5px 5px;
+    border: none;
+}
+
+fieldset label {
+    display: inline-block;
+    vertical-align: top;
+    width: calc(50% - 90px);
+    text-align: right;
+    font: 11px Verdana;
+    margin: 4px 4px 4px 4px;
+}
+
+fieldset input {
+    display: inline-block;
+    vertical-align: top;
+    margin: 4px 4px 4px 4px;
+}
+
+fieldset button {
+    padding: 15px 32px;
+    vertical-align: top;
+    display: inline-block;
+    font-size: 16px;
+    width: 173px;
+}
+
+::placeholder {
+    opacity: 0.7;
+}

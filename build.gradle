@@ -1,0 +1,41 @@
+plugins {
+  id "com.moowork.node" version "1.2.0"
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'maven'
+mainClassName = 'de.jan.anki.mqttService.AnkiMain'
+
+repositories {
+  jcenter()
+    maven {
+        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+    }
+}
+
+dependencies {
+    compile 'org.reflections:reflections:0.9.11'
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    compile group: 'org.json', name: 'json', version: '20180813'
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.4'
+}
+
+jar {
+    manifest {
+        attributes("Manifest-Version": "1.0",
+                "Main-Class": "de.jan.anki.host.AnkiMain");
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest.from jar.manifest
+    from {
+        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
+}
