@@ -100,7 +100,7 @@ public class AnkiHost {
         // Car discovered event publish
         JSONObject json = new JSONObject();
         json.put("timestamp", new Timestamp(System.currentTimeMillis()));
-        carPublisher.publish("E/DiscoveryTime", json.toString());
+        carPublisher.publish("S/DiscoveryTime", json.toString(),true);
         json.put("Car", v.getAddress());
         hostPublisher.publish("E/CarDiscovered", json.toString());
 

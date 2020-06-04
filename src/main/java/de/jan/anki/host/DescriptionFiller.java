@@ -83,6 +83,10 @@ public class DescriptionFiller {
 
         json = new JSONObject();
         json.put("timestamp","Timestamp");
+        descPublisher.publish("Car/D/S/DiscoveryTime",json.toString(),true);
+
+        json = new JSONObject();
+        json.put("timestamp","Timestamp");
         json.put("online","Boolean");
         json.put("charging","Boolean");
         json.put("onTrack","Boolean");
