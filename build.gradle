@@ -1,24 +1,43 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+}
+
 plugins {
-  id "com.moowork.node" version "1.2.0"
+    id "com.moowork.node" version "1.2.0"
 }
 
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'maven'
-mainClassName = 'de.jan.anki.mqttService.AnkiMain'
+mainClassName = 'de.jan.anki.host.CarPing'
 
 repositories {
-  jcenter()
-    maven {
-        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
-    }
+    jcenter()
 }
 
 dependencies {
-    compile 'org.reflections:reflections:0.9.11'
+    //included by adessoAG/anki-drive-java, but maybe updated
+    compile 'org.reflections:reflections:0.9.11' //was 0.9.10
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
     compile group: 'org.json', name: 'json', version: '20180813'
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.4'
+
+    //new dependencies included by BT
+}
+
+node {
+    version = '8.12.0'    //was '4.4.7'
+    npmVersion = '6.4.1'  //was '3.10.5'
+    distBaseUrl = 'https://nodejs.org/dist'
+    download = true
+
+    workDir = file("${project.buildDir}/nodejs")
+    nodeModulesDir = file("${project.projectDir}")
 }
 
 jar {
@@ -38,4 +57,17 @@ task fatJar(type: Jar) {
         exclude "META-INF/*.RSA"
     }
     with jar
+
+    task server(type: NodeTask) {
+        script = file('src/main/nodejs/server.js')
+        ignoreExitValue = true
+    }
 }
+
+//added exec task for Anki Commander SSH test server
+    task ssh(type: JavaExec) {
+        classpath = sourceSets.main.runtimeClasspath
+        main = 'com.shakhar.anki.commander.AnkiSshd'
+    }
+
+    processResources.dependsOn(['npmInstall'])
