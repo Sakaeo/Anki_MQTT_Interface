@@ -10,4 +10,4 @@ echo "starting gateway..."
 nohup sudo ./gradlew server & 
 sleep 30
 echo "starting host service ..."
-java -jar jar/Host.jar $1
+java -jar build/libs/Anki_MQTT_Interface.jar $1
