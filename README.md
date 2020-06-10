@@ -1,7 +1,6 @@
-# Anki Drive SDK for Java
+# Anki_MQTT_Interface
 
-The Anki Drive SDK for Java is an implementation of the message protocols
-and data parsing routines necessary for communicating with Anki Drive vehicles.
+Interface to enable contoling an Anki Overdrive Modell over a MQTT Broker.
 
 *See [anki/drive-sdk](https://github.com/anki/drive-sdk) for the official
 SDK written in C.*
@@ -11,8 +10,9 @@ The authors of this software are in no way affiliated to Anki.
 All naming rights for Anki, Anki Drive and Anki Overdrive are property of
 [Anki](http://anki.com).
 
-This is a forked repository from [adessoAG/anki-drive-java](https://github.com/adessoAG/anki-drive-java), which, sadly,
-appears to be abandoned. We are maintaining this SDK to serve our [tenbergen/Automotive-CPS](https://github.com/tenbergen/Automotive-CPS) project.
+This is a forked repository from [tenbergen/anki-drive-java](https://github.com/tenbergen/anki-drive-java).
+The source repository is [adessoAG/anki-drive-java](https://github.com/adessoAG/anki-drive-java), which
+appears to be abandoned.
 
 ## About
 
@@ -25,45 +25,20 @@ is carried out in Java code.
 
 ## Prerequisites
 
-To build and use the SDK in your own project you will need:
+To build and use the interface in your own project you will need:
 
 - Java JDK (>= 1.8.0)
 - a compatible Bluetooth 4.0 interface with LE support
 
 ## Installation
 
-To install the SDK and all required dependencies run the following commands:
+To install the interface and all required dependencies run the following commands:
 
 ```
-git clone https://github.com/tenbergen/anki-drive-java
-cd anki-drive-java
+git clone https://github.com/Sakaeo/Anki_MQTT_Interface
+cd Anki_MQTT_Interface
 npm install
 ./gradlew build
-```
-
-### On MacOS
-
-Prerequisites for macOS:
-- Node.js v6.14.2 or later.
-- macOS 10.7 or later
-
-If you get a "node-pre-gyp build fail error" when running npm install run:
-```
-rm -rf node_modules/
-npm install --build-from-resource
-```
-
-Once connected, if your cars time out follow these steps:
-1. Stop the server
-2. From the Mac desktop, hold down the Shift+Option keys and then click on the Bluetooth menu item to reveal the hidden Debug menu
-3. Select “Reset the Bluetooth module” from the Debug menu list
-4. Once finished reboot your Mac
-
-### On Linux
-
-Optional Dependency node-usb will not be installed. So, run:
-```
-sudo apt-get install libudev-dev
 ```
 
 ## Usage
@@ -73,39 +48,23 @@ Start the Node.js gateway service:
 ./gradlew server
 ```
 
-### Add the Java library
-
-To get the Java library into your build:
-```gradle
-// add JitPack.io as a repository
-repositories {
-    maven { url 'https://jitpack.io' }
-}
-
-dependencies {
-    // <Git commit-ish>: commit hash or tag
-    compile 'com.github.adessoAG:anki-drive-java:<Git commit-ish>'
-}
+Start the Host service:
+```
+./gradlew fatJar	
+java -jar build/libs/Anki_MQTT_Interface.jar localhost
 ```
 
-For the Maven instructions see the [JitPack.io website](https://jitpack.io/#adessoAG/anki-drive-java).
-
-### API usage
-
-Create a AnkiConnector object:
-```java
-AnkiConnector anki = new AnkiConnector("localhost", 5000);
+Or run the Startscript, to start both services:
+```
+./start.sh localhost
 ```
 
-Start scanning for vehicles:
-```java
-List<Vehicle> vehicles = anki.findVehicles();
-```
+localhost: -> Or IP address of the MQTT Broker
 
 ### Test File
-To try a connection, start the server and run the class:
-```java
-edu.oswego.cs.CPSLab.anki.AnkiConnectionTest
+To test the interface run the .html example:
+```
+src.Examples.HTML.mqtt.html
 ```
 
 ## Contributing

@@ -5,7 +5,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * This class manages the Mqtt subscriptions and handles the intents received from a client application
+ * This class manages the Mqtt subscriptions and handles the intents received from a client application.
+ * Strübin Jan, 11.06.20
  */
 public class MQTTSubscriber {
     private final MqttClient client;

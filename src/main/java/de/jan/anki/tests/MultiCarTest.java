@@ -11,6 +11,10 @@ import de.adesso.anki.messages.VersionResponseMessage;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Some multi car Test.
+ * Strübin Jan, 11.06.20
+ */
 public class MultiCarTest {
 
     public static void main(String[] args) throws IOException, InterruptedException {

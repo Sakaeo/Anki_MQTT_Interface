@@ -11,6 +11,10 @@ import java.util.List;
 
 import static de.adesso.anki.messages.LightsPatternMessage.*;
 
+/**
+ * First Test kinda from @tenbergen    https://github.com/tenbergen/anki-drive-java.
+ * Strübin Jan, 11.06.20
+ */
 public class MainTest {
 
     public static void main(String[] args) throws IOException, InterruptedException {

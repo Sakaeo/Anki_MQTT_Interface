@@ -12,6 +12,7 @@ import java.util.TimerTask;
 /**
  * This class checks if a car is online or not.
  * Updates car status and removes Car if offline.
+ * Strübin Jan, 11.06.20
  */
 public class CarPing extends TimerTask {
     private final MQTTPublisher carPublisher;

@@ -5,7 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * This Class manages the publish of all description in the /D Topics
+ * This Class manages the publish of all description in the /D Topics.
+ * Strübin Jan, 11.06.20
  */
 public class DescriptionFiller {
 

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="eng">
 <head>
+    <!--
+    Example application for the Anki-MQTT interface.
+    Strübin Jan, 11.06.20
+    -->
     <title>JavaScript MQTT WebSocket Example</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js">
@@ -76,21 +80,21 @@
                     });
                     document.getElementById("hostCars").replaceChild(node, document.getElementById("hostCars").childNodes[2]);
 
-            } else if (topic.endsWith("/HostStatus")) {
-                if (json.value) {
-                    document.getElementById("hostStatus").innerText = "Online ";
-                    document.getElementById("hostStatus").style.color = "green";
-                } else {
-                    document.getElementById("hostStatus").innerText = "Offline";
-                    document.getElementById("hostStatus").style.color = "red";
-                }
-            } else if (topic.includes("/Host")) {
-                if (topic.includes("/E")) {
-                    // Host Events
-                    if (topic.includes("/E")) {
-                        document.getElementById("hostEvent").innerHTML = topic.split("/").pop()
+                } else if (topic.endsWith("/HostStatus")) {
+                    if (json.value) {
+                        document.getElementById("hostStatus").innerText = "Online ";
+                        document.getElementById("hostStatus").style.color = "green";
+                    } else {
+                        document.getElementById("hostStatus").innerText = "Offline";
+                        document.getElementById("hostStatus").style.color = "red";
                     }
-                }
+                } else if (topic.includes("/Host")) {
+                    if (topic.includes("/E")) {
+                        // Host Events
+                        if (topic.includes("/E")) {
+                            document.getElementById("hostEvent").innerHTML = topic.split("/").pop()
+                        }
+                    }
 
                 } else if (topic.includes("Car/")) {
                     let topicArray = topic.split("/");
@@ -102,23 +106,23 @@
                     }
                     name.replace(/.$/, ":");
 
-                //Error msg
-                if (topic.endsWith("/Error")) {
-                    document.getElementById("error").innerHTML = json["msg"]
-                }
+                    //Error msg
+                    if (topic.endsWith("/Error")) {
+                        document.getElementById("error").innerHTML = json["msg"]
+                    }
 
-                // Car Events
-                if (topic.includes("/E")) {
-                    document.getElementById("carEvent").innerHTML = topic.split("/").pop()
-                }
+                    // Car Events
+                    if (topic.includes("/E")) {
+                        document.getElementById("carEvent").innerHTML = topic.split("/").pop()
+                    }
 
-                //Status
-                if (document.getElementById(v + "Status")) {
-                    fillCarStatus(json, topic, v);
-                } else {
-                    let node = document.createElement("div");
-                    node.setAttribute("class", "col-3");
-                    node.setAttribute("id", v + "Status");
+                    //Status
+                    if (document.getElementById(v + "Status")) {
+                        fillCarStatus(json, topic, v);
+                    } else {
+                        let node = document.createElement("div");
+                        node.setAttribute("class", "col-3");
+                        node.setAttribute("id", v + "Status");
 
                         if (colorCount % 5 === 0) {
                             colorCount++;

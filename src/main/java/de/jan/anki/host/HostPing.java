@@ -6,7 +6,8 @@ import java.sql.Timestamp;
 import java.util.TimerTask;
 
 /**
- * TimerTask that publishes that the AnkiHost is online
+ * TimerTask that publishes that the AnkiHost is online.
+ * Strübin Jan, 11.06.20
  */
 public class HostPing extends TimerTask {
     private final MQTTPublisher hostPublisher;

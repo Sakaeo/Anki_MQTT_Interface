@@ -5,7 +5,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 /**
- * This class manages the publishing of messages to the Mqtt Broker
+ * This class manages the publishing of messages to the Mqtt Broker.
+ * Strübin Jan, 11.06.20
  */
 public class MQTTPublisher {
     private final String baseTopic;

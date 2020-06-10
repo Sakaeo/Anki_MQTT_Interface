@@ -5,7 +5,10 @@ import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
-
+/**
+ * Prints the RoadId in to a .txt file.
+ * Strübin Jan, 11.06.20
+ */
 public class ListRoadId {
 
 

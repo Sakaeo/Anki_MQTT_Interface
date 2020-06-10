@@ -11,6 +11,10 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
+/**
+ * Some Mqtt publish Test.
+ * Strübin Jan, 11.06.20
+ */
 public class PublishTest {
 
     public static void main(String[] args) throws MqttException, IOException {

@@ -11,7 +11,8 @@ import java.sql.Timestamp;
 import java.util.Timer;
 
 /**
- * Main class of the Host Service
+ * Main class of the Host Service.
+ * Strübin Jan, 11.06.20
  */
 public class AnkiMain {
 

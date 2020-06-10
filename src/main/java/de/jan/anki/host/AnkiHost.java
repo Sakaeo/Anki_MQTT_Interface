@@ -13,7 +13,8 @@ import java.sql.Timestamp;
 import java.util.*;
 
 /**
- * This class manages the communication between the Node.js Bluetooth Gateway and JSON commands from the Mqtt Broker
+ * This class manages the communication between the Node.js Bluetooth Gateway and JSON commands from the Mqtt Broker.
+ * Strübin Jan, 11.06.20
  */
 public class AnkiHost {
     private final String mqttServer;

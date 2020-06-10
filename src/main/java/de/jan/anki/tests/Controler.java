@@ -10,6 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Some controller Test.
+ * Strübin Jan, 11.06.20
+ */
 public class Controler {
 
     private static float offset;

@@ -7,6 +7,10 @@ import de.adesso.anki.messages.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Some light Test.
+ * Strübin Jan, 11.06.20
+ */
 public class LightTest {
 
     public static void main(String[] args) throws IOException, InterruptedException {
