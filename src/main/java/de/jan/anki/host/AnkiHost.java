@@ -266,7 +266,7 @@ public class AnkiHost {
         VersionResponseHandler vrh = new VersionResponseHandler(v, carPublisher);
         v.addMessageListener(VersionResponseMessage.class, vrh);
 
-        //BatteryLever Handler
+        //BatteryLevel Handler
         BatteryLevelResponseHandler brh = new BatteryLevelResponseHandler(v, carPublisher);
         v.addMessageListener(BatteryLevelResponseMessage.class, brh);
 

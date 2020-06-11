@@ -6,7 +6,6 @@ import de.adesso.anki.Vehicle;
 import de.adesso.anki.messages.*;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import static de.adesso.anki.messages.LightsPatternMessage.*;
